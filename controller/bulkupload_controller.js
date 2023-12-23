@@ -5,9 +5,8 @@ const JwtHelper = require('../utils/Helpers/jwt_helper')
 const BulkUploadService = require('../services/bulkupload_service')
 const jwtHelperObj = new JwtHelper();
 const multer = require('multer');
-const path = require('path');
-const upload = multer({ dest: 'uploads/' });
-// let g = ""
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 // Function to verify if the uploaded file is a CSV
 function isCsvFile(file) {
@@ -24,7 +23,7 @@ router.post("/bulkUploadOnlineSales", jwtHelperObj.verifyAccessToken, upload.sin
                     return res.status(400).send({ "status": 400, "message": "Invalid file format. Please upload a CSV file." });
                 }
                 const bulkUploadServiceObj = new BulkUploadService();
-                const result = await bulkUploadServiceObj.processOnlineSalesCsvFile(req.file.path);
+                const result = await bulkUploadServiceObj.processOnlineSalesCsvFile(req.file.buffer);
                 res.send(result)
             }
             catch (error) {
@@ -60,7 +59,7 @@ router.post("/bulkUploadOfflineSales", jwtHelperObj.verifyAccessToken, upload.si
                 const clientName = req.aud.split(":")[2]
 
                 const bulkUploadServiceObj = new BulkUploadService();
-                const result = await bulkUploadServiceObj.processOfflineSalesCsvFile(req.file.path, storeName, clientName);
+                const result = await bulkUploadServiceObj.processOfflineSalesCsvFile(req.file.buffer, storeName, clientName);
                 res.send(result)
             } catch (error) {
                 // Send the error message in the response
@@ -91,7 +90,7 @@ router.post("/bulkUploadProducts", jwtHelperObj.verifyAccessToken, upload.single
                     return res.status(400).send({ "status": 400, "message": "Invalid file format. Please upload a CSV file." });
                 }
                 const bulkUploadServiceObj = new BulkUploadService();
-                const result = await bulkUploadServiceObj.processProductsCsvFile(req.file.path);
+                const result = await bulkUploadServiceObj.processProductsCsvFile(req.file.buffer);
                 res.send(result)
             }
             catch (error) {

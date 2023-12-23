@@ -1,17 +1,22 @@
 const fs = require('fs');
 const csv = require('csv-parser');
+const stream = require('stream');
 const { Store, Order, Oproduct, Product } = require('../utils/Models/Models');
 
 class BulkUpload {
     constructor() {
 
     }
-    async processOnlineSalesCsvFile(filePath) {
+    async processOnlineSalesCsvFile(buffer) {
         return new Promise((resolve, reject) => {
             const results = [];
             const nonShopifyRows = [];
 
-            fs.createReadStream(filePath)
+            // Create a readable stream from the buffer
+            const bufferStream = new stream.PassThrough();
+            bufferStream.end(buffer);
+
+            bufferStream
                 .pipe(csv())
                 .on('data', (data) => results.push(data))
                 .on('end', async () => {
@@ -132,12 +137,16 @@ class BulkUpload {
     }
 
 
-    async processOfflineSalesCsvFile(filePath, storeName, clientName) {
+    async processOfflineSalesCsvFile(buffer, storeName, clientName) {
         return new Promise((resolve, reject) => {
             const results = [];
             const nonMatchingRows = [];
 
-            fs.createReadStream(filePath)
+            // Create a readable stream from the buffer
+            const bufferStream = new stream.PassThrough();
+            bufferStream.end(buffer);
+
+            bufferStream
                 .pipe(csv())
                 .on('data', (data) => results.push(data))
                 .on('end', async () => {
@@ -261,10 +270,15 @@ class BulkUpload {
     }
 
 
-    async processProductsCsvFile(filePath) {
+    async processProductsCsvFile(buffer) {
         return new Promise((resolve, reject) => {
             const results = [];
-            fs.createReadStream(filePath)
+
+            // Create a readable stream from the buffer
+            const bufferStream = new stream.PassThrough();
+            bufferStream.end(buffer);
+
+            bufferStream
                 .pipe(csv())
                 .on('data', (data) => results.push(data))
                 .on('end', async () => {
