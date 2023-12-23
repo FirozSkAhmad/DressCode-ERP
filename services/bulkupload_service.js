@@ -25,7 +25,10 @@ class BulkUpload {
 
                         if (nonShopifyRows.length > 0) {
                             const errorMessage = nonShopifyRows.map(row => `Row ${row.row}: ${row['Store Name']}`).join(', ');
-                            reject(`Rows with non-Shopify store names:- ${errorMessage}`);
+                            // Create a custom error object with a status code
+                            const error = new Error(`Rows with non-Shopify store names:- ${errorMessage}`);
+                            error.statusCode = 400; // Set the status code
+                            reject(error);
                             return;
                         }
 
@@ -44,17 +47,43 @@ class BulkUpload {
         });
     }
 
-
-
     async uploadBulkOnlineSalesData(data) {
+        const errorMessages = [];
+        let successfulAdditions = 0;
+
         try {
+            // Collect all orderIds from the data
+            const orderIds = data.map(item => item['Order ID']);
+
+            // Find any existing orders with these orderIds
+            const existingOrders = await Order.findAll({
+                where: { orderId: orderIds }
+            });
+
+            // Prepare a map of existing orderIds for quick lookup
+            const existingOrderIds = existingOrders.map(order => (order.orderId));
+
             await global.DATA.CONNECTION.mysql.transaction(async (t) => {
-                for (const item of data) {
+                for (let i = 0; i < data.length; i++) {
+                    const item = data[i];
+
+                    // Check for duplicates
+                    if (existingOrderIds.includes(parseInt(item['Order ID']))) {
+                        errorMessages.push(`Row ${i + 1}: Order with ID '${item['Order ID']}' already exists.`);
+                        continue; // Skip this iteration
+                    }
+
                     // Find store
                     const store = await Store.findOne({
                         where: { storeName: item['Store Name'] },
                         transaction: t
                     });
+
+                    if (!store) {
+                        errorMessages.push(`Row ${i + 1}: Store named '${item['Store Name']}' not found.`);
+                        continue; // Skip this iteration
+                    }
+
                     // Create order
                     const order = await Order.create({
                         storeId: store.storeId,
@@ -63,9 +92,11 @@ class BulkUpload {
                         orderedDate: item['Billing Date'],
                         totalPrice: item['Total Price']
                     }, { transaction: t });
+
+                    successfulAdditions++;
                     const productsCount = ((Object.keys(item).length - 6) / 4)
                     // Process each product
-                    for (let i = 1; i <= productsCount; i++) { // Adjust based on your CSV structure
+                    for (let i = 1; i <= productsCount; i++) {
                         if (item[`Product ${i} ID`]) {
                             await Oproduct.create({
                                 orderId: order.orderId,
@@ -79,12 +110,27 @@ class BulkUpload {
                     }
                 }
             });
-            return "uploaded data successfully";
+
+            let finalMessage = successfulAdditions > 0 ? `${successfulAdditions} orders added successfully.` : "";
+            if (errorMessages.length > 0) {
+                finalMessage = errorMessages.join('. ') + (finalMessage ? ' ' + finalMessage : '');
+                return {
+                    status: 400,
+                    message: finalMessage
+                };
+            } else {
+                return {
+                    status: 200,
+                    message: finalMessage
+                };
+            }
+
         } catch (error) {
             console.error('Error processing CSV file:', error);
             throw error;
         }
     }
+
 
     async processOfflineSalesCsvFile(filePath, storeName, clientName) {
         return new Promise((resolve, reject) => {
@@ -112,7 +158,9 @@ class BulkUpload {
 
                         if (nonMatchingRows.length > 0) {
                             const errorMessage = nonMatchingRows.map(row => `Row ${row.row}: ${row.details}`).join('; ');
-                            reject(`Rows with non-matching data: ${errorMessage}`);
+                            const error = new Error(`Rows with non-matching data: ${errorMessage}`);
+                            error.statusCode = 400;
+                            reject(error);
                             return;
                         }
 
@@ -130,17 +178,43 @@ class BulkUpload {
         });
     }
 
-
-
     async uploadBulkOfflineSalesData(data) {
+        const errorMessages = [];
+        let successfulAdditions = 0;
+
         try {
+            // Collect all orderIds from the data
+            const orderIds = data.map(item => item['Order ID']);
+
+            // Find any existing orders with these orderIds
+            const existingOrders = await Order.findAll({
+                where: { orderId: orderIds }
+            });
+
+            // Prepare a map of existing orderIds for quick lookup
+            const existingOrderIds = existingOrders.map(order => (order.orderId));
+
             await global.DATA.CONNECTION.mysql.transaction(async (t) => {
-                for (const item of data) {
+                for (let i = 0; i < data.length; i++) {
+                    const item = data[i];
+
+                    // Check for duplicates
+                    if (existingOrderIds.includes(parseInt(item['Order ID']))) {
+                        errorMessages.push(`Row ${i + 1}: Order with ID '${item['Order ID']}' already exists.`);
+                        continue; // Skip this iteration
+                    }
+
                     // Find store
                     const store = await Store.findOne({
                         where: { storeName: item['Store Name'] },
                         transaction: t
                     });
+
+                    if (!store) {
+                        errorMessages.push(`Row ${i + 1}: Store named '${item['Store Name']}' not found.`);
+                        continue; // Skip this iteration
+                    }
+
                     // Create order
                     const order = await Order.create({
                         storeId: store.storeId,
@@ -149,9 +223,11 @@ class BulkUpload {
                         orderedDate: item['Billing Date'],
                         totalPrice: item['Total Price']
                     }, { transaction: t });
+
+                    successfulAdditions++;
                     const productsCount = ((Object.keys(item).length - 6) / 4)
                     // Process each product
-                    for (let i = 1; i <= productsCount; i++) { // Adjust based on your CSV structure
+                    for (let i = 1; i <= productsCount; i++) {
                         if (item[`Product ${i} ID`]) {
                             await Oproduct.create({
                                 orderId: order.orderId,
@@ -165,7 +241,19 @@ class BulkUpload {
                     }
                 }
             });
-            return "uploaded data successfully";
+            let finalMessage = successfulAdditions > 0 ? `${successfulAdditions} orders added successfully.` : "";
+            if (errorMessages.length > 0) {
+                finalMessage = errorMessages.join('. ') + (finalMessage ? ' ' + finalMessage : '');
+                return {
+                    status: 400,
+                    message: finalMessage
+                };
+            } else {
+                return {
+                    status: 200,
+                    message: finalMessage
+                };
+            }
         } catch (error) {
             console.error('Error processing CSV file:', error);
             throw error;
@@ -222,13 +310,19 @@ class BulkUpload {
                 }
             }
 
-            let finalMessage = "";
+            let finalMessage = successfulAdditions > 0 ? `${successfulAdditions} product's added successfully.` : "";
             if (errorMessages.length > 0) {
-                finalMessage += errorMessages.join(', ') + '. ';
+                finalMessage += errorMessages.join(', ') + (finalMessage ? ' ' + finalMessage : '');
+                return {
+                    status: 400,
+                    message: finalMessage
+                };
+            } else {
+                return {
+                    status: 200,
+                    message: finalMessage
+                };
             }
-            finalMessage += `${successfulAdditions} product's added successfully.`;
-
-            return finalMessage;
         } catch (error) {
             console.error('Error processing CSV file:', error);
             throw error;

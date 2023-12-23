@@ -6,51 +6,26 @@ const BulkUploadService = require('../services/bulkupload_service')
 const jwtHelperObj = new JwtHelper();
 const multer = require('multer');
 const path = require('path');
-let g = ""
+const upload = multer({ dest: 'uploads/' });
+// let g = ""
 
-router.post("/bulkUploadOnlineSales", jwtHelperObj.verifyAccessToken, async (req, res, next) => {
+// Function to verify if the uploaded file is a CSV
+function isCsvFile(file) {
+    const fileExtension = file.originalname.split('.').pop().toLowerCase();
+    const mimeType = file.mimetype;
+    return fileExtension === 'csv' && mimeType === 'text/csv';
+}
+
+router.post("/bulkUploadOnlineSales", jwtHelperObj.verifyAccessToken, upload.single('file'), async (req, res, next) => {
     try {
         if (req.aud.split(":")[1] === "SUPER ADMIN") {
             try {
-                let storage = multer.diskStorage({
-                    destination: function (req, file, callback) {
-                        callback(null, process.env.FILE_UPLOAD_PATH)
-                    },
-                    filename: function (req, file, callback) {
-                        callback(null, file.originalname)
-                        g = file.originalname;
-                    }
-                })
-
-                const uploadAsync = () => {
-                    return new Promise((resolve, reject) => {
-                        let upload = multer({
-                            storage: storage,
-                            fileFilter: function (req, file, callback) {
-                                let ext = path.extname(file.originalname);
-                                if (ext !== '.csv' && ext !== '.xlsx') {
-                                    return callback(res.end('Only Excel files or Csv are allowed'), null);
-                                }
-                                callback(null, true);
-                            },
-                        }).single('file');
-                        upload(req, res, function (err) {
-                            if (err) {
-                                console.log(err);
-                                reject(err);
-                            } else {
-                                resolve();
-                            }
-                        });
-                    });
-                };
-
-                await uploadAsync();
+                if (!req.file || !isCsvFile(req.file)) {
+                    return res.status(400).send({ "status": 400, "message": "Invalid file format. Please upload a CSV file." });
+                }
                 const bulkUploadServiceObj = new BulkUploadService();
-                const result = await bulkUploadServiceObj.processOnlineSalesCsvFile(process.env.FILE_UPLOAD_PATH.concat(g));
-                res.send({
-                    result,
-                })
+                const result = await bulkUploadServiceObj.processOnlineSalesCsvFile(req.file.path);
+                res.send(result)
             }
             catch (error) {
                 // Send the error message in the response
@@ -74,52 +49,19 @@ router.post("/bulkUploadOnlineSales", jwtHelperObj.verifyAccessToken, async (req
     }
 })
 
-router.post("/bulkUploadOfflineSales", jwtHelperObj.verifyAccessToken, async (req, res, next) => {
+router.post("/bulkUploadOfflineSales", jwtHelperObj.verifyAccessToken, upload.single('file'), async (req, res, next) => {
     try {
         if (req.aud.split(":")[3] === "CLIENT") {
             try {
+                if (!req.file || !isCsvFile(req.file)) {
+                    return res.status(400).send({ "status": 400, "message": "Invalid file format. Please upload a CSV file." });
+                }
                 const storeName = req.aud.split(":")[1]
                 const clientName = req.aud.split(":")[2]
 
-                let storage = multer.diskStorage({
-                    destination: function (req, file, callback) {
-                        callback(null, process.env.FILE_UPLOAD_PATH)
-                    },
-                    filename: function (req, file, callback) {
-                        callback(null, file.originalname)
-                        g = file.originalname;
-                    }
-                })
-
-                const uploadAsync = () => {
-                    return new Promise((resolve, reject) => {
-                        let upload = multer({
-                            storage: storage,
-                            fileFilter: function (req, file, callback) {
-                                let ext = path.extname(file.originalname);
-                                if (ext !== '.csv' && ext !== '.xlsx') {
-                                    return callback(res.end('Only Excel files or Csv are allowed'), null);
-                                }
-                                callback(null, true);
-                            },
-                        }).single('file');
-                        upload(req, res, function (err) {
-                            if (err) {
-                                console.log(err);
-                                reject(err);
-                            } else {
-                                resolve();
-                            }
-                        });
-                    });
-                };
-
-                await uploadAsync();
                 const bulkUploadServiceObj = new BulkUploadService();
-                const result = await bulkUploadServiceObj.processOfflineSalesCsvFile(process.env.FILE_UPLOAD_PATH.concat(g), storeName, clientName);
-                res.send({
-                    result
-                })
+                const result = await bulkUploadServiceObj.processOfflineSalesCsvFile(req.file.path, storeName, clientName);
+                res.send(result)
             } catch (error) {
                 // Send the error message in the response
                 res.status(500).send({
@@ -141,49 +83,24 @@ router.post("/bulkUploadOfflineSales", jwtHelperObj.verifyAccessToken, async (re
     }
 })
 
-router.post("/bulkUploadProducts", jwtHelperObj.verifyAccessToken, async (req, res, next) => {
+router.post("/bulkUploadProducts", jwtHelperObj.verifyAccessToken, upload.single('file'), async (req, res, next) => {
     try {
         if (req.aud.split(":")[1] === "SUPER ADMIN") {
-            let storage = multer.diskStorage({
-                destination: function (req, file, callback) {
-                    callback(null, process.env.FILE_UPLOAD_PATH)
-                },
-                filename: function (req, file, callback) {
-                    callback(null, file.originalname)
-                    g = file.originalname;
+            try {
+                if (!req.file || !isCsvFile(req.file)) {
+                    return res.status(400).send({ "status": 400, "message": "Invalid file format. Please upload a CSV file." });
                 }
-            })
-
-            const uploadAsync = () => {
-                return new Promise((resolve, reject) => {
-                    let upload = multer({
-                        storage: storage,
-                        fileFilter: function (req, file, callback) {
-                            let ext = path.extname(file.originalname);
-                            if (ext !== '.csv' && ext !== '.xlsx') {
-                                return callback(res.end('Only Excel files or Csv are allowed'), null);
-                            }
-                            callback(null, true);
-                        },
-                    }).single('file');
-                    upload(req, res, function (err) {
-                        if (err) {
-                            console.log(err);
-                            reject(err);
-                        } else {
-                            resolve();
-                        }
-                    });
+                const bulkUploadServiceObj = new BulkUploadService();
+                const result = await bulkUploadServiceObj.processProductsCsvFile(req.file.path);
+                res.send(result)
+            }
+            catch (error) {
+                // Send the error message in the response
+                res.status(500).send({
+                    "status": 500,
+                    error: error
                 });
-            };
-
-            await uploadAsync();
-            const bulkUploadServiceObj = new BulkUploadService();
-            const result = await bulkUploadServiceObj.processProductsCsvFile(process.env.FILE_UPLOAD_PATH.concat(g));
-            res.send({
-                "status": 200,
-                "message": result,
-            })
+            }
         }
         else {
             res.send({
