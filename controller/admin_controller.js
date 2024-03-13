@@ -94,10 +94,10 @@ router.get('/getAllProductNames', jwtHelperObj.verifyAccessToken, async (req, re
     }
 })
 
-router.get('/getProductSubEntites/:productName', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
+router.get('/getProductSizes/:productName', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
     try {
         const adminServiceObj = new AdminService()
-        const data = await adminServiceObj.getSubEntitiesByProductName(req.params.productName)
+        const data = await adminServiceObj.getProductSizes(req.params.productName)
         res.send({
             "status": 200,
             "message": Constants.SUCCESS,
@@ -109,10 +109,10 @@ router.get('/getProductSubEntites/:productName', jwtHelperObj.verifyAccessToken,
     }
 })
 
-router.get('/getProductIdByProductNameAndSubEntity/:productName/:subEntity', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
+router.get('/getProductIdByProductNameAndSize/:productName/:size', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
     try {
         const adminServiceObj = new AdminService()
-        const productId = await adminServiceObj.getProductIdByProductNameAndSubEntity(req.params.productName, req.params.subEntity)
+        const productId = await adminServiceObj.getProductIdByProductNameAndSize(req.params.productName, req.params.size)
         res.send({
             "status": 200,
             "message": Constants.SUCCESS,

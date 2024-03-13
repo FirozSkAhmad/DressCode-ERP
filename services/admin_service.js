@@ -138,7 +138,7 @@ class AdminService {
     }
 
 
-    async getSubEntitiesByProductName(productName) {
+    async getProductSizes(productName) {
         try {
             const products = await Product.findAll({
                 where: {
@@ -147,24 +147,24 @@ class AdminService {
             });
 
             // Extract the subEntity values
-            const subEntities = products.map(product => product.subEntity);
+            const sizes = products.map(product => product.size);
 
             // Optionally, remove duplicates if needed
-            const uniqueSubEntities = [...new Set(subEntities)];
+            const uniqueSizes = [...new Set(sizes)];
 
-            return uniqueSubEntities;
+            return uniqueSizes;
         } catch (error) {
-            console.error('Error fetching sub entities:', error);
+            console.error('Error fetching sizes', error);
             throw error;
         }
     }
 
-    async getProductIdByProductNameAndSubEntity(productName, subEntity) {
+    async getProductIdByProductNameAndSize(productName, size) {
         try {
             const product = await Product.findOne({
                 where: {
                     productName: productName,
-                    subEntity: subEntity
+                    size: size
                 },
                 attributes: ['productId'] // Fetch only the productId
             });
