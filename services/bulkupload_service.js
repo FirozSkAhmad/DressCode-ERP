@@ -317,8 +317,9 @@ class BulkUpload {
                 } else {
                     await Product.create({
                         productName: item[`Product Name`],
-                        subEntity: item[`Sub Entity`],
-                        MRP: item[`MRP`] || "-" // Assuming MRP is optional
+                        size: item[`SIZE`],
+                        MRP: item[`MRP`] || "-", // Assuming MRP is optional
+                        quantity: item[`QUANTITY`] || "-" 
                     });
                     successfulAdditions++;
                 }

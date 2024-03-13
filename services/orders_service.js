@@ -13,7 +13,7 @@ class OrdersService {
                     model: Order,
                     include: [{
                         model: Oproduct,
-                        attributes: ['productId', 'productName', 'subEntity', 'quantity', 'price']
+                        attributes: ['productId', 'productName', 'size', 'quantity', 'price']
                     }]
                 }]
             });
@@ -36,7 +36,7 @@ class OrdersService {
                     products: order.oproducts.map(prod => ({
                         product_id: prod.productId,
                         product_name: prod.productName,
-                        sub_entity: prod.subEntity,
+                        size: prod.size,
                         quantity: prod.quantity,
                         price: prod.price
                     })),
@@ -86,7 +86,7 @@ class OrdersService {
                     },
                     include: [{
                         model: Oproduct,
-                        attributes: ['productId', 'productName', 'subEntity', 'quantity', 'price']
+                        attributes: ['productId', 'productName', 'size', 'quantity', 'price']
                     }]
                 }]
             });
@@ -105,7 +105,7 @@ class OrdersService {
                         products: order.oproducts.map(prod => ({
                             product_id: prod.productId,
                             product_name: prod.productName,
-                            sub_entity: prod.subEntity,
+                            size: prod.size,
                             quantity: prod.quantity,
                             price: prod.price
                         })),

@@ -65,9 +65,9 @@ const Oproduct = global.DATA.CONNECTION.mysql.define('oproduct', {
     orderId: Sequelize.INTEGER,
     productId: Sequelize.INTEGER,
     productName: Sequelize.STRING,
-    subEntity: Sequelize.STRING,
+    size: Sequelize.STRING,
     quantity: Sequelize.INTEGER,
-    price: Sequelize.DECIMAL
+    MRP: Sequelize.DECIMAL
 });
 
 //Product Model
@@ -79,8 +79,9 @@ const Product = global.DATA.CONNECTION.mysql.define('product', {
         autoIncrement: true
     },
     productName: Sequelize.STRING,
-    subEntity: Sequelize.STRING,
-    MRP: Sequelize.STRING,
+    size: Sequelize.STRING,
+    MRP: Sequelize.INTEGER,
+    quantity: Sequelize.INTEGER,
 });
 
 // Relationships
