@@ -109,7 +109,7 @@ class BulkUpload {
                                 productName: item[`Product ${i}`],
                                 quantity: item[`Product ${i} Quantity`],
                                 price: item[`Product ${i} Price`],
-                                subEntity: item[`Sub-Entity`],
+                                size: item[`SIZE`],
                             }, { transaction: t });
                         }
                     }
@@ -244,7 +244,7 @@ class BulkUpload {
                                 productName: item[`Product ${i}`],
                                 quantity: item[`Product ${i} Quantity`],
                                 price: item[`Product ${i} Price`],
-                                subEntity: item[`Sub-Entity`],
+                                size: item[`SIZE`],
                             }, { transaction: t });
                         }
                     }
@@ -304,16 +304,16 @@ class BulkUpload {
         try {
             for (let i = 0; i < data.length; i++) {
                 const item = data[i];
-                // Check if product with same name and subEntity exists
+                // Check if product with same name and size exists
                 const existingProduct = await Product.findOne({
                     where: {
                         productName: item[`Product Name`],
-                        subEntity: item[`Sub Entity`]
+                        size: item[`SIZE`]
                     }
                 });
 
                 if (existingProduct) {
-                    errorMessages.push(`Row ${i + 1}: Product with name '${item[`Product Name`]}' and sub entity '${item[`Sub Entity`]}' already exists.`);
+                    errorMessages.push(`Row ${i + 1}: Product with name '${item[`Product Name`]}' and size '${item[`SIZE`]}' already exists.`);
                 } else {
                     await Product.create({
                         productName: item[`Product Name`],
