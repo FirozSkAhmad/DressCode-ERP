@@ -124,7 +124,7 @@ router.get('/getProductIdByProductNameAndSize/:productName/:size', jwtHelperObj.
     }
 })
 
-router.get('/admin/getPriceByProductId/:productId', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
+router.get('/getPriceByProductId/:productId', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
     try {
         const adminServiceObj = new AdminService()
         const MRP = await adminServiceObj.getPriceByProductId(req.params.productId)
