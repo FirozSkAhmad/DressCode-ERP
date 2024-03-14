@@ -40,8 +40,7 @@ const Store = global.DATA.CONNECTION.mysql.define('store', {
     deleted: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
-    },
-    r
+    }
 });
 
 
