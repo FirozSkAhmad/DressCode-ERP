@@ -124,14 +124,15 @@ router.get('/getProductIdByProductNameAndSize/:productName/:size', jwtHelperObj.
     }
 })
 
-router.get('/getPriceByProductId/:productId', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
+router.get('/getPriceAndQuantityByProductId/:productId', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
     try {
         const adminServiceObj = new AdminService()
-        const MRP = await adminServiceObj.getPriceByProductId(req.params.productId)
+        const productDetatils = await adminServiceObj.getPriceAndQuantityByProductId(req.params.productId)
         res.send({
             "status": 200,
             "message": Constants.SUCCESS,
-            "MRP": MRP
+            "MRP": productDetatils.MRP,
+            "quantity": productDetatils.quantity
         })
     }
     catch (err) {
