@@ -15,6 +15,7 @@ router.post('/createNewBill', async (req, res, next) => {
 
         res.send({
             "status": 201,
+            "orderId": result.orderId,
             "message": result.message,
         })
     }
