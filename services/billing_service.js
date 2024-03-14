@@ -1,4 +1,5 @@
-const { Store, Order, Oproduct } = require('../utils/Models/Models');
+const { Store, Order, Oproduct, Product } = require('../utils/Models/Models');
+const { Op } = require('sequelize')
 
 
 class BillingService {
@@ -32,9 +33,20 @@ class BillingService {
                         productId: products[i].productId,
                         productName: products[i].productName,
                         quantity: products[i].quantity,
-                        price: products[i].price,
-                        subEntity: products[i].subEntity,
+                        MRP: products[i].MRP,
+                        size: products[i].size,
                     }, { transaction: t });
+
+                    await Product.decrement(
+                        { quantity: products[i].quantity },
+                        {
+                            where: {
+                                productId: products[i].productId,
+                                quantity: { [Op.gte]: products[i].quantity } // Ensure there's enough quantity
+                            },
+                            transaction: t
+                        }
+                    );
                 }
             });
 

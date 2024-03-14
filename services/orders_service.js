@@ -86,7 +86,7 @@ class OrdersService {
                     },
                     include: [{
                         model: Oproduct,
-                        attributes: ['productId', 'productName', 'size', 'quantity', 'price']
+                        attributes: ['productId', 'productName', 'size', 'quantity', 'MRP']
                     }]
                 }]
             });
@@ -107,7 +107,7 @@ class OrdersService {
                             product_name: prod.productName,
                             size: prod.size,
                             quantity: prod.quantity,
-                            price: prod.price
+                            MRP: prod.MRP
                         })),
                         ordered_date: order.orderedDate,
                         total_price: order.totalPrice
