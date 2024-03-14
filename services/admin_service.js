@@ -147,7 +147,10 @@ class AdminService {
         try {
             const products = await Product.findAll({
                 where: {
-                    productName: productName
+                    productName: productName,
+                    quantity: {
+                        [Op.gt]: 0 // Use the "greater than" operator
+                    }
                 }
             });
 
