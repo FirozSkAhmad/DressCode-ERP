@@ -180,6 +180,25 @@ class AdminService {
         }
     }
 
+    async getPriceByProductId(productId) {
+        try {
+            const product = await Product.findOne({
+                where: {
+                    productId: productId
+                },
+                attributes: ['MRP'] // Fetch only the productId
+            });
+
+            if (!product) {
+                throw new Error('Product not found');
+            }
+
+            return product.MRP;
+        } catch (error) {
+            console.error('Error fetching product ID:', error);
+            throw error;
+        }
+    }
 
     async getProductDetails(productId) {
         try {

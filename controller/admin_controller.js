@@ -123,6 +123,21 @@ router.get('/getProductIdByProductNameAndSize/:productName/:size', jwtHelperObj.
         next(err);
     }
 })
+
+router.get('/admin/getPriceByProductId/:productId', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
+    try {
+        const adminServiceObj = new AdminService()
+        const MRP = await adminServiceObj.getPriceByProductId(req.params.productId)
+        res.send({
+            "status": 200,
+            "message": Constants.SUCCESS,
+            "MRP": MRP
+        })
+    }
+    catch (err) {
+        next(err);
+    }
+})
 router.get('/getProductDetails/:productId', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
     try {
         const adminServiceObj = new AdminService()
