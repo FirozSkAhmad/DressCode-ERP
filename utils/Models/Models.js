@@ -37,6 +37,11 @@ const Store = global.DATA.CONNECTION.mysql.define('store', {
         allowNull: true,
     },
     roleType: Sequelize.STRING,
+    deleted: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+    },
+    r
 });
 
 

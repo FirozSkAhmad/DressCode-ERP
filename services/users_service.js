@@ -22,7 +22,8 @@ class UserService {
             } else {
                 user = await Store.findOne({
                     "where": {
-                        emailId: userDetails.emailId
+                        emailId: userDetails.emailId,
+                        deleted: false
                     }
                 }).catch(err => {
                     console.log(err.message)

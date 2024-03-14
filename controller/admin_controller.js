@@ -42,7 +42,7 @@ router.post('/createStore', jwtHelperObj.verifyAccessToken, async (req, res, nex
     }
 })
 
-router.post('/deleteStore', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
+router.put('/deleteStore', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
     try {
         if (req.aud.split(":")[1] === "SUPER ADMIN") {
             const adminServiceObj = new AdminService()

@@ -88,7 +88,7 @@ class AdminService {
             const storeId = storedetails.storeId;
 
             // Attempt to delete the store with the given storeId
-            const result = await Store.destroy({
+            const result = await Store.update({ deleted: true }, {
                 where: {
                     storeId: storeId
                 }
@@ -191,7 +191,7 @@ class AdminService {
                 where: {
                     productId: productId
                 },
-                attributes: ['MRP','quantity'] // Fetch only the productId
+                attributes: ['MRP', 'quantity'] // Fetch only the productId
             });
 
             if (!productDetatils) {
@@ -234,7 +234,8 @@ class AdminService {
                 where: {
                     storeName: {
                         [Op.ne]: 'Shopify' // Sequelize.Op.ne stands for "not equal"
-                    }
+                    },
+                    deleted: false
                 },
                 attributes: ['storeId', 'storeName', 'clientName', 'emailId', 'password', 'roleType'] // Specify the fields you want to retrieve
             });

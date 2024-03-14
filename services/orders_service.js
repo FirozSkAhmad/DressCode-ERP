@@ -8,12 +8,12 @@ class OrdersService {
     async getOrders(storeName) {
         try {
             const store = await Store.findOne({
-                where: { storeName: storeName },
+                where: { storeName: storeName, deleted: false },
                 include: [{
                     model: Order,
                     include: [{
                         model: Oproduct,
-                        attributes: ['productId', 'productName', 'size', 'quantity', 'price']
+                        attributes: ['productId', 'productName', 'size', 'quantity', 'MRP']
                     }]
                 }]
             });
@@ -75,7 +75,8 @@ class OrdersService {
                 where: {
                     storeName: {
                         [Op.ne]: 'Shopify' // Exclude 'Shopify' store
-                    }
+                    },
+                    deleted: false
                 },
                 include: [{
                     model: Order,
@@ -176,7 +177,8 @@ class OrdersService {
                 where: {
                     storeName: {
                         [Op.ne]: 'Shopify' // 'ne' stands for 'not equal'
-                    }
+                    },
+                    deleted: false
                 },
                 include: [{
                     model: Order,
