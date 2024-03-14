@@ -33,7 +33,7 @@ class BillingService {
                         productId: products[i].productId,
                         productName: products[i].productName,
                         quantity: products[i].quantity,
-                        MRP: products[i].MRP,
+                        MRP: products[i].price,
                         size: products[i].size,
                     }, { transaction: t });
 
