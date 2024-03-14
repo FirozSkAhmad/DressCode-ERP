@@ -187,14 +187,14 @@ class AdminService {
 
     async getPriceAndQuantityByProductId(productId) {
         try {
-            const product = await Product.findOne({
+            const productDetatils = await Product.findOne({
                 where: {
                     productId: productId
                 },
                 attributes: ['MRP','quantity'] // Fetch only the productId
             });
 
-            if (!product) {
+            if (!productDetatils) {
                 throw new Error('Product not found');
             }
 
