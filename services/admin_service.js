@@ -118,7 +118,13 @@ class AdminService {
 
     async getAllProductNames() {
         try {
-            const products = await Product.findAll();
+            const products = await Product.findAll({
+                where: {
+                    quantity: {
+                        [Op.gt]: 0 // Use the "greater than" operator
+                    }
+                }
+            });
 
             // Check if there are no products
             if (products.length === 0) {
@@ -136,7 +142,6 @@ class AdminService {
             throw error;
         }
     }
-
 
     async getProductSizes(productName) {
         try {
