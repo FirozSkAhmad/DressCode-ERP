@@ -1,4 +1,4 @@
-const { Store, Order, Oproduct, Product } = require('../utils/Models/Models');
+const { Executive, Order, Oproduct, Product } = require('../utils/Models/Models');
 const { Op } = require('sequelize')
 
 
@@ -9,29 +9,32 @@ class BillingService {
     async createNewBill(payload) {
         try {
             let billingData = { ...payload };
-    
+
             // The transaction result can be returned directly.
             return await global.DATA.CONNECTION.mysql.transaction(async (t) => {
-    
-                // Find store
-                const store = await Store.findOne({
-                    where: { storeName: billingData['storeName'], clientName: billingData['clientName'] },
+
+                // Find executive
+                const executive = await Executive.findOne({
+                    where: { executiveName: billingData['executiveName'] },
                     transaction: t
                 });
-                
-                // Ensure store is found before proceeding
-                if (!store) {
-                    throw new Error('Store not found.');
+
+                // Ensure executive is found before proceeding
+                if (!executive) {
+                    throw new Error('Executive not found.');
                 }
-    
+
                 // Create order
                 const order = await Order.create({
-                    storeId: store.storeId,
-                    clientName: store.clientName,
+                    executiveId: executive.executiveId,
+                    studentName: billingData['studentName'],
+                    class: billingData['class'],
+                    roll_no: billingData['rollNo'] || null,
+                    phn_no: billingData['phnNo'],
                     orderedDate: billingData['orderedDate'],
                     totalPrice: billingData['totalPrice']
                 }, { transaction: t });
-    
+
                 const products = billingData['products'];
                 // Process each product
                 for (let i = 0; i < products?.length; i++) {
@@ -43,7 +46,7 @@ class BillingService {
                         MRP: products[i].price,
                         size: products[i].size,
                     }, { transaction: t });
-    
+
                     const result = await Product.decrement(
                         { quantity: products[i].quantity },
                         {
@@ -54,13 +57,13 @@ class BillingService {
                             transaction: t
                         }
                     );
-    
+
                     // Check if decrement was successful (optional)
                     if (result[0][0] <= 0) {
                         throw new Error('Not enough quantity for product ID ' + products[i].productId);
                     }
                 }
-    
+
                 // If all operations complete successfully, return the result
                 return {
                     orderId: order.orderId,
@@ -72,7 +75,7 @@ class BillingService {
             throw err;
         }
     }
-    
+
 }
 
 module.exports = BillingService;

@@ -1,5 +1,5 @@
 const Constants = require('../utils/Constants/response_messages')
-const { SuperAdmin, Store, Product } = require('../utils/Models/Models');
+const { SuperAdmin, Executive, Product } = require('../utils/Models/Models');
 const { Op } = require('sequelize')
 
 
@@ -34,30 +34,27 @@ class AdminService {
         }
     }
 
-    async createStore(storeDetails) {
+    async createExecutive(executiveDetails) {
         try {
             // Check if storeName, emailId, or clientName already exists
-            const existingStores = await Store.findAll({
+            const existingStores = await Executive.findAll({
                 where: {
                     [Op.or]: [
-                        { storeName: storeDetails.storeName },
-                        { emailId: storeDetails.emailId },
-                        { clientName: storeDetails.clientName }
+                        { storeName: executiveDetails.executiveName },
+                        { emailId: executiveDetails.emailId },
+                        { clientName: executiveDetails.clientName }
                     ]
                 }
             });
 
             let errorMessage = [];
             // if (existingStores) {
-            existingStores.forEach(store => {
-                if (store.storeName === storeDetails.storeName) {
-                    errorMessage.push('Store name already exists');
+            existingStores.forEach(executive => {
+                if (executive.executiveName === executiveDetails.executiveName) {
+                    errorMessage.push('Executiv name already exists');
                 }
-                if (store.emailId === storeDetails.emailId) {
+                if (executive.emailId === executiveDetails.emailId) {
                     errorMessage.push('Email ID already exists');
-                }
-                if (store.clientName === storeDetails.clientName) {
-                    errorMessage.push('Client name already exists');
                 }
             });
             // }
@@ -67,41 +64,40 @@ class AdminService {
             }
 
             // If unique, create the new store
-            const newStore = await Store.create({
-                storeName: storeDetails.storeName,
-                emailId: storeDetails.emailId,
-                password: storeDetails.password,
-                clientName: storeDetails.clientName,
-                roleType: storeDetails.roleType,
+            const newExecutive = await Executive.create({
+                executiveName: executiveDetails.executiveName,
+                emailId: executiveDetails.emailId,
+                password: executiveDetails.password,
+                roleType: executiveDetails.roleType,
             });
 
-            return newStore;
+            return newExecutive;
         } catch (err) {
-            console.error("Error in createStore:", err.message);
+            console.error("Error in createExecutive:", err.message);
             throw new global.DATA.PLUGINS.httperrors.InternalServerError(err.message);
         }
     }
 
 
-    async deleteStore(storedetails) {
+    async deleteExecutive(executiveDetails) {
         try {
-            const storeId = storedetails.storeId;
+            const executiveId = executiveDetails.executiveId;
 
             // Attempt to delete the store with the given storeId
             const result = await Store.update({ deleted: true }, {
                 where: {
-                    storeId: storeId
+                    executiveId: executiveId
                 }
             });
 
             if (result === 0) {
                 // No store was deleted, which implies no store was found with the given storeId
-                throw new global.DATA.PLUGINS.httperrors.NotFound('Store not found');
+                throw new global.DATA.PLUGINS.httperrors.NotFound('Executive not found');
             }
 
-            return { message: 'Store successfully deleted' };
+            return { message: 'Executive successfully deleted' };
         } catch (err) {
-            console.error('Error deleting store:', err);
+            console.error('Error deleting Executive:', err);
             throw err; // Propagate the error for further handling
         }
     }
@@ -230,22 +226,22 @@ class AdminService {
     }
 
 
-    async getAllStores() {
+    async getAllExecutives() {
         try {
             // Retrieve all stores from the database except those with storeName 'Shopify'
-            const stores = await Store.findAll({
+            const executives = await Executive.findAll({
                 where: {
-                    storeName: {
-                        [Op.ne]: 'Shopify' // Sequelize.Op.ne stands for "not equal"
-                    },
+                    // storeName: {
+                    //     [Op.ne]: 'Shopify' // Sequelize.Op.ne stands for "not equal"
+                    // },
                     deleted: false
                 },
-                attributes: ['storeId', 'storeName', 'clientName', 'emailId', 'password', 'roleType'] // Specify the fields you want to retrieve
+                attributes: ['executiveId', 'executiveName', 'emailId', 'password', 'roleType'] // Specify the fields you want to retrieve
             });
 
-            return stores;
+            return executives;
         } catch (error) {
-            console.error('Error fetching stores:', error);
+            console.error('Error fetching executives:', error);
             throw error; // Propagate the error for further handling
         }
     }

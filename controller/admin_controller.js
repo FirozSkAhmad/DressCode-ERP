@@ -19,21 +19,21 @@ router.post('/createSuperAdmin', async (req, res, next) => {
     }
 })
 
-router.post('/createStore', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
+router.post('/createExecutive', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
     try {
         if (req.aud.split(":")[1] === "SUPER ADMIN") {
             const adminServiceObj = new AdminService()
-            const store = await adminServiceObj.createStore(req.body)
+            const executive = await adminServiceObj.createExecutive(req.body)
             res.send({
                 "status": 200,
                 "message": Constants.SUCCESS,
-                store
+                executive
             })
         }
         else {
             res.send({
                 "status": 401,
-                "message": "only Super Admin has access to create stores",
+                "message": "only Super Admin has access to create executives",
             })
         }
     }
@@ -42,11 +42,11 @@ router.post('/createStore', jwtHelperObj.verifyAccessToken, async (req, res, nex
     }
 })
 
-router.put('/deleteStore', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
+router.put('/deleteExecutive', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
     try {
         if (req.aud.split(":")[1] === "SUPER ADMIN") {
             const adminServiceObj = new AdminService()
-            const result = await adminServiceObj.deleteStore(req.body)
+            const result = await adminServiceObj.deleteExecutive(req.body)
             res.send({
                 "status": 200,
                 "message": result.message,
@@ -55,7 +55,7 @@ router.put('/deleteStore', jwtHelperObj.verifyAccessToken, async (req, res, next
         else {
             res.send({
                 "status": 401,
-                "message": "only Super Admin has access to delete store",
+                "message": "only Super Admin has access to delete executive",
             })
         }
     }
@@ -154,11 +154,11 @@ router.get('/getProductDetails/:productId', jwtHelperObj.verifyAccessToken, asyn
     }
 })
 
-router.get('/getAllStores', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
+router.get('/getAllExecutives', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
     try {
         if (req.aud.split(":")[1] === "SUPER ADMIN") {
             const adminServiceObj = new AdminService()
-            const data = await adminServiceObj.getAllStores()
+            const data = await adminServiceObj.getAllExecutives()
             res.send({
                 "status": 200,
                 "message": Constants.SUCCESS,
@@ -168,7 +168,7 @@ router.get('/getAllStores', jwtHelperObj.verifyAccessToken, async (req, res, nex
         else {
             res.send({
                 "status": 401,
-                "message": "only Super Admin has access to get all stores",
+                "message": "only Super Admin has access to get all Executives",
             })
         }
     }

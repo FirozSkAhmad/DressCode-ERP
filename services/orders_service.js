@@ -1,14 +1,14 @@
-const { Store, Order, Oproduct } = require('../utils/Models/Models');
+const { Executive, Order, Oproduct } = require('../utils/Models/Models');
 const { Op } = require('sequelize')
 
 class OrdersService {
     constructor() {
 
     }
-    async getOrders(storeName) {
+    async getOrders(executiveName) {
         try {
-            const store = await Store.findOne({
-                where: { storeName: storeName, deleted: false },
+            const executive = await Executive.findOne({
+                where: { executiveName: executiveName, deleted: false },
                 include: [{
                     model: Order,
                     include: [{
@@ -18,15 +18,15 @@ class OrdersService {
                 }]
             });
 
-            if (!store) {
-                return { message: 'Store not found' };
+            if (!executive) {
+                return { message: 'Executive not found' };
             }
 
             // Initialize an object to group orders by client name
             const ordersByClient = {};
 
             // Group orders by client name
-            store.orders.forEach(order => {
+            executive.orders.forEach(order => {
                 const clientName = order.clientName;
                 if (!ordersByClient[clientName]) {
                     ordersByClient[clientName] = [];
@@ -57,8 +57,8 @@ class OrdersService {
 
             // Format the response
             const formattedResponse = {
-                store_id: store.storeId,
-                store_name: store.storeName,
+                executive_id: executive.executiveId,
+                executive_name: executive.executiveName,
                 orders_by_client: ordersArray
             };
 
@@ -69,20 +69,20 @@ class OrdersService {
         }
     }
 
-    async getAllOfflineStores() {
+    async getAllOfflineExecutives() {
         try {
-            const stores = await Store.findAll({
+            const executives = await Executive.findAll({
                 where: {
-                    storeName: {
-                        [Op.ne]: 'Shopify' // Exclude 'Shopify' store
+                    executiveName: {
+                        [Op.ne]: 'Shopify' // Exclude 'Shopify' executive
                     },
                     deleted: false
                 },
                 include: [{
                     model: Order,
                     where: {
-                        storeId: {
-                            [Op.ne]: 1 // Exclude orders from storeId: 2
+                        executiveId: {
+                            [Op.ne]: 1 // Exclude orders from executiveId: 2
                         }
                     },
                     include: [{
@@ -93,14 +93,13 @@ class OrdersService {
             });
 
 
-            if (stores.length === 0) {
-                return { stores: [] };
+            if (executives.length === 0) {
+                return { executives: [] };
             }
 
-            const storesData = stores.map(store => {
+            const executivesData = executives.map(executive => {
                 // Map each order to the desired format
-                console.log(store.orders)
-                const orders = store.orders.map(order => (
+                const orders = executive.orders.map(order => (
                     {
                         orderId: order.orderId,
                         products: order.oproducts.map(prod => ({
@@ -115,51 +114,50 @@ class OrdersService {
                     }));
 
                 // Extract client name from the first order (assuming all orders have the same client)
-                // const clientName = store.orders[0]?.clientName;
+                // const clientName = executive.orders[0]?.clientName;
 
                 return {
-                    store_id: store.storeId,
-                    store_name: store.storeName,
-                    client_name: store.clientName, // Include the client name here
+                    executive_id: executive.executiveId,
+                    executive_name: executive.executiveName,
                     orders: orders
                 };
             });
 
             // Format the response
             const formattedResponse = {
-                stores: storesData
+                executives: executivesData
             };
 
             return formattedResponse;
         } catch (error) {
-            console.error('Error getting store data:', error);
+            console.error('Error getting executive data:', error);
             throw error;
         }
     }
 
     async getTotalOnlineSales() {
         try {
-            const store = await Store.findOne({
-                where: { storeName: "Shopify" },
+            const executive = await Executive.findOne({
+                where: { executiveName: "Shopify" },
                 include: [{
                     model: Order,
                     attributes: ['totalPrice'] // Only fetch the totalPrice attribute
                 }]
             });
 
-            if (!store) {
-                return { message: 'Store not found' };
+            if (!executive) {
+                return { message: 'executive not found' };
             }
 
             // Calculate total sales by summing up the totalPrice of each order
-            const totalSales = store.orders.reduce((total, order) => {
+            const totalSales = executive.orders.reduce((total, order) => {
                 return total + parseFloat(order.totalPrice);
             }, 0);
 
             // Format the response
             const formattedResponse = {
-                store_id: store.storeId,
-                store_name: store.storeName,
+                executive_id: executive.executiveId,
+                executive_name: executive.executiveName,
                 total_online_sales: totalSales
             };
 
@@ -172,10 +170,10 @@ class OrdersService {
 
     async getTotalOfflineSales() {
         try {
-            // Find all stores except those named 'Shopify'
-            const stores = await Store.findAll({
+            // Find all executives except those named 'Shopify'
+            const executives = await Executive.findAll({
                 where: {
-                    storeName: {
+                    executiveName: {
                         [Op.ne]: 'Shopify' // 'ne' stands for 'not equal'
                     },
                     deleted: false
@@ -188,13 +186,13 @@ class OrdersService {
 
             let totalSales = 0;
 
-            // Calculate total sales for all stores except 'Shopify'
-            stores.forEach(store => {
-                const storeTotal = store.orders.reduce((total, order) => {
+            // Calculate total sales for all executives except 'Shopify'
+            executives.forEach(executive => {
+                const executiveTotal = executive.orders.reduce((total, order) => {
                     return total + parseFloat(order.totalPrice);
                 }, 0);
 
-                totalSales += storeTotal;
+                totalSales += executiveTotal;
             });
 
             // Format the response

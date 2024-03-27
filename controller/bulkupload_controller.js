@@ -50,16 +50,15 @@ router.post("/bulkUploadOnlineSales", jwtHelperObj.verifyAccessToken, upload.sin
 
 router.post("/bulkUploadOfflineSales", jwtHelperObj.verifyAccessToken, upload.single('file'), async (req, res, next) => {
     try {
-        if (req.aud.split(":")[3] === "CLIENT") {
+        if (req.aud.split(":")[3] === "EXECUTIVE") {
             try {
                 if (!req.file || !isCsvFile(req.file)) {
                     return res.status(400).send({ "status": 400, "message": "Invalid file format. Please upload a CSV file." });
                 }
-                const storeName = req.aud.split(":")[1]
-                const clientName = req.aud.split(":")[2]
+                const executiveName = req.aud.split(":")[1]
 
                 const bulkUploadServiceObj = new BulkUploadService();
-                const result = await bulkUploadServiceObj.processOfflineSalesCsvFile(req.file.buffer, storeName, clientName);
+                const result = await bulkUploadServiceObj.processOfflineSalesCsvFile(req.file.buffer, executiveName);
                 res.send(result)
             } catch (error) {
                 // Send the error message in the response

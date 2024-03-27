@@ -1,6 +1,6 @@
 const Constants = require('../utils/Constants/response_messages')
 const JWTHelper = require('../utils/Helpers/jwt_helper')
-const { SuperAdmin, Store } = require('../utils/Models/Models');
+const { SuperAdmin, Executive } = require('../utils/Models/Models');
 
 
 class UserService {
@@ -20,7 +20,7 @@ class UserService {
                     throw new global.DATA.PLUGINS.httperrors.InternalServerError(Constants.SQL_ERROR)
                 })
             } else {
-                user = await Store.findOne({
+                user = await Executive.findOne({
                     "where": {
                         emailId: userDetails.emailId,
                         deleted: false
@@ -51,12 +51,12 @@ class UserService {
             // Valid email and password
             const tokenPayload = userDetails.login_type === 'ADMIN'
                 ? `${user.id}:${user.roleType}`
-                : `${user.storeId}:${user.storeName}:${user.clientName}:${user.roleType}`;
+                : `${user.executiveId}:${user.executiveName}:${user.roleType}`;
 
             const accessToken = await this.jwtObject.generateAccessToken(tokenPayload);
             console.log(user)
             const data = {
-                accessToken, "id": user.id, "email": user.emailId, "role_type": user.roleType, "clientName": user.clientName, "storeName": user.storeName
+                accessToken, "id": user.id, "email": user.emailId, "role_type": user.roleType, "executiveName": user.executiveName
             }
             return data
         }

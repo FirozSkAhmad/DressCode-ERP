@@ -8,15 +8,15 @@ const jwtHelperObj = new JwtHelper();
 
 const router = express.Router()
 
-router.get('/getOrders/:storeName', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
+router.get('/getOrders/:executiveName', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
     try {
         const audience = req.aud; // Assuming the decoded token is attached to req.user
-        // Split the audience to get user ID/store ID and role type
-        const [idOrStoreId, roleType] = audience.split(":");
+        // Split the audience to get user ID/executive ID and role type
+        const [idOrExecutiveId, roleType] = audience.split(":");
         if (roleType === 'SUPER ADMIN' || roleType === 'CLIENT') {
-            const storeName = req.params.storeName;
+            const executiveName = req.params.executiveName;
             const ordersServiceObj = new OrdersService()
-            const data = await ordersServiceObj.getOrders(storeName)
+            const data = await ordersServiceObj.getOrders(executiveName)
                 .catch(err => {
                     console.log("Error occured", err.message);
                     throw err;
@@ -41,10 +41,10 @@ router.get('/getOrders/:storeName', jwtHelperObj.verifyAccessToken, async (req, 
 router.get('/getTotalOnlineSales', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
     try {
         const audience = req.aud; // Assuming the decoded token is attached to req.user
-        // Split the audience to get user ID/store ID and role type
-        const [idOrStoreId, roleType] = audience.split(":");
+        // Split the audience to get user ID/executive ID and role type
+        const [idOrExecutiveId, roleType] = audience.split(":");
         if (roleType === 'SUPER ADMIN' || roleType === 'CLIENT') {
-            const storeName = req.params.storeName;
+            const executiveName = req.params.executiveName;
             const ordersServiceObj = new OrdersService()
             const data = await ordersServiceObj.getTotalOnlineSales()
                 .catch(err => {
@@ -71,10 +71,10 @@ router.get('/getTotalOnlineSales', jwtHelperObj.verifyAccessToken, async (req, r
 router.get('/getTotalOfflineSales', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
     try {
         const audience = req.aud; // Assuming the decoded token is attached to req.user
-        // Split the audience to get user ID/store ID and role type
-        const [idOrStoreId, roleType] = audience.split(":");
+        // Split the audience to get user ID/executive ID and role type
+        const [idOrExecutiveId, roleType] = audience.split(":");
         if (roleType === 'SUPER ADMIN' || roleType === 'CLIENT') {
-            const storeName = req.params.storeName;
+            const executiveName = req.params.executiveName;
             const ordersServiceObj = new OrdersService()
             const data = await ordersServiceObj.getTotalOfflineSales()
                 .catch(err => {
@@ -98,15 +98,15 @@ router.get('/getTotalOfflineSales', jwtHelperObj.verifyAccessToken, async (req, 
     }
 })
 
-router.get('/getAllOfflineStores', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
+router.get('/getAllOfflineExecutives', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
     try {
         const audience = req.aud; // Assuming the decoded token is attached to req.user
-        // Split the audience to get user ID/store ID and role type
-        const [idOrStoreId, roleType] = audience.split(":");
+        // Split the audience to get user ID/executive ID and role type
+        const [idOrExecutiveId, roleType] = audience.split(":");
         if (roleType === 'SUPER ADMIN' || roleType === 'CLIENT') {
-            const storeName = req.params.storeName;
+            const executiveName = req.params.executiveName;
             const ordersServiceObj = new OrdersService()
-            const data = await ordersServiceObj.getAllOfflineStores()
+            const data = await ordersServiceObj.getAllOfflineExecutives()
                 .catch(err => {
                     console.log("Error occured", err.message);
                     throw err;

@@ -10,22 +10,17 @@ const SuperAdmin = global.DATA.CONNECTION.mysql.define('superadmin', {
 });
 
 
-// Store Model
-const Store = global.DATA.CONNECTION.mysql.define('store', {
-    storeId: {
+// Executive Model
+const Executive = global.DATA.CONNECTION.mysql.define('executive', {
+    executiveId: {
         type: Sequelize.DataTypes.INTEGER,
         primaryKey: true,
         allowNull: false,
         autoIncrement: true
     },
-    storeName: {
+    executiveName: {
         type: Sequelize.STRING,
         unique: true
-    },
-    clientName: {
-        type: Sequelize.STRING,
-        unique: true,
-        allowNull: true,
     },
     emailId: {
         type: Sequelize.STRING,
@@ -36,7 +31,11 @@ const Store = global.DATA.CONNECTION.mysql.define('store', {
         type: Sequelize.STRING,
         allowNull: true,
     },
-    roleType: Sequelize.STRING,
+    roleType: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: "EXECUTIVE"
+    },
     deleted: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
@@ -52,8 +51,18 @@ const Order = global.DATA.CONNECTION.mysql.define('order', {
         allowNull: false,
         autoIncrement: true
     },
-    clientName: Sequelize.STRING,
-    storeId: Sequelize.INTEGER,
+    studentName: Sequelize.STRING,
+    class: Sequelize.STRING,
+    roll_no: {
+        type: Sequelize.STRING,
+        allowNull: true,
+    },
+    emailId: {
+        type: Sequelize.STRING,
+        allowNull: true,
+    },
+    phn_no: Sequelize.STRING,
+    executiveId: Sequelize.INTEGER,
     orderedDate: Sequelize.STRING,
     totalPrice: Sequelize.DECIMAL
 });
@@ -66,7 +75,7 @@ const Oproduct = global.DATA.CONNECTION.mysql.define('oproduct', {
         allowNull: false,
         autoIncrement: true
     },
-    orderId: Sequelize.INTEGER,
+    executiveId: Sequelize.INTEGER,
     productId: Sequelize.INTEGER,
     productName: Sequelize.STRING,
     size: Sequelize.STRING,
@@ -89,11 +98,11 @@ const Product = global.DATA.CONNECTION.mysql.define('product', {
 });
 
 // Relationships
-Store.hasMany(Order, { foreignKey: 'storeId', onDelete: 'CASCADE' });
-Order.belongsTo(Store, { foreignKey: 'storeId' });
+Executive.hasMany(Order, { foreignKey: 'executiveId', onDelete: 'CASCADE' });
+Order.belongsTo(Executive, { foreignKey: 'executiveId' });
 Order.hasMany(Oproduct, { foreignKey: 'orderId', onDelete: 'CASCADE' });
 Oproduct.belongsTo(Order, { foreignKey: 'orderId' });
 
 global.DATA.CONNECTION.mysql.sync(); // This creates the table if it doesn't exist (and does nothing if it already exists)
 
-module.exports = { SuperAdmin, Store, Order, Oproduct, Product };
+module.exports = { SuperAdmin, Executive, Order, Oproduct, Product };

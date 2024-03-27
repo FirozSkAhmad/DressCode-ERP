@@ -1,7 +1,7 @@
 const fs = require('fs');
 const csv = require('csv-parser');
 const stream = require('stream');
-const { Store, Order, Oproduct, Product } = require('../utils/Models/Models');
+const { Executive, Order, Oproduct, Product } = require('../utils/Models/Models');
 
 class BulkUpload {
     constructor() {
@@ -23,15 +23,15 @@ class BulkUpload {
                     try {
                         // Check each row and record non-Shopify rows
                         results.forEach((item, index) => {
-                            if (item['Store Name'] !== 'Shopify') {
-                                nonShopifyRows.push({ row: index + 1, "Store Name": item['Store Name'] });
+                            if (item['Executive Name'] !== 'Shopify') {
+                                nonShopifyRows.push({ row: index + 1, "Executive Name": item['Executive Name'] });
                             }
                         });
 
                         if (nonShopifyRows.length > 0) {
-                            const errorMessage = nonShopifyRows.map(row => `Row ${row.row}: ${row['Store Name']}`).join(', ');
+                            const errorMessage = nonShopifyRows.map(row => `Row ${row.row}: ${row['Executive Name']}`).join(', ');
                             // Create a custom error object with a status code
-                            const error = new Error(`Rows with non-Shopify store names:- ${errorMessage}`);
+                            const error = new Error(`Rows with non-Shopify executive names:- ${errorMessage}`);
                             error.statusCode = 400; // Set the status code
                             reject(error);
                             return;
@@ -78,21 +78,24 @@ class BulkUpload {
                         continue; // Skip this iteration
                     }
 
-                    // Find store
-                    const store = await Store.findOne({
-                        where: { storeName: item['Store Name'] },
+                    // Find executive
+                    const executive = await Executive.findOne({
+                        where: { executiveName: item['Executive Name'] },
                         transaction: t
                     });
 
-                    if (!store) {
-                        errorMessages.push(`Row ${i + 1}: Store named '${item['Store Name']}' not found.`);
+                    if (!executive) {
+                        errorMessages.push(`Row ${i + 1}: Executive named '${item['Executive Name']}' not found.`);
                         continue; // Skip this iteration
                     }
 
                     // Create order
                     const order = await Order.create({
-                        storeId: store.storeId,
-                        clientName: item['Client Name'],
+                        executiveId: executive.executiveId,
+                        studentName: item['Student Name'],
+                        class: item['Class'],
+                        roll_no: item['Roll No'] || null,
+                        phn_no: item['Phone No'],
                         orderId: item['Order ID'],
                         orderedDate: item['Billing Date'],
                         totalPrice: item['Total Price']
@@ -137,7 +140,7 @@ class BulkUpload {
     }
 
 
-    async processOfflineSalesCsvFile(buffer, storeName, clientName) {
+    async processOfflineSalesCsvFile(buffer, executiveName) {
         return new Promise((resolve, reject) => {
             const results = [];
             const nonMatchingRows = [];
@@ -151,14 +154,11 @@ class BulkUpload {
                 .on('data', (data) => results.push(data))
                 .on('end', async () => {
                     try {
-                        // Check each row and record rows with non-matching store or client names
+                        // Check each row and record rows with non-matching executive
                         results.forEach((item, index) => {
                             let mismatchDetails = [];
-                            if (item['Store Name'] !== storeName) {
-                                mismatchDetails.push(`Store - ${item['Store Name']} (expected: ${storeName})`);
-                            }
-                            if (item['Client Name'] !== clientName) {
-                                mismatchDetails.push(`Client - ${item['Client Name']} (expected: ${clientName})`);
+                            if (item['Executive Name'] !== executiveName) {
+                                mismatchDetails.push(`Executive - ${item['Executive Name']} (expected: ${executiveName})`);
                             }
                             if (mismatchDetails.length > 0) {
                                 nonMatchingRows.push({ row: index + 1, details: mismatchDetails.join(', ') });
@@ -213,21 +213,24 @@ class BulkUpload {
                         continue; // Skip this iteration
                     }
 
-                    // Find store
-                    const store = await Store.findOne({
-                        where: { storeName: item['Store Name'] },
+                    // Find executive
+                    const executive = await Executive.findOne({
+                        where: { executiveName: item['Executive Name'] },
                         transaction: t
                     });
 
-                    if (!store) {
-                        errorMessages.push(`Row ${i + 1}: Store named '${item['Store Name']}' not found.`);
+                    if (!executive) {
+                        errorMessages.push(`Row ${i + 1}: Executive named '${item['Executive Name']}' not found.`);
                         continue; // Skip this iteration
                     }
 
                     // Create order
                     const order = await Order.create({
-                        storeId: store.storeId,
-                        clientName: item['Client Name'],
+                        executiveId: executive.executiveId,
+                        studentName: item['Student Name'],
+                        class: item['Class'],
+                        roll_no: item['Roll No'] || null,
+                        phn_no: item['Phone No'],
                         orderId: item['Order ID'],
                         orderedDate: item['Billing Date'],
                         totalPrice: item['Total Price']
@@ -319,7 +322,7 @@ class BulkUpload {
                         productName: item[`Product Name`],
                         size: item[`SIZE`],
                         MRP: item[`MRP`] || "-", // Assuming MRP is optional
-                        quantity: item[`QUANTITY`] || "-" 
+                        quantity: item[`QUANTITY`] || "-"
                     });
                     successfulAdditions++;
                 }
