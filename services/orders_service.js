@@ -102,6 +102,11 @@ class OrdersService {
                 const orders = executive.orders.map(order => (
                     {
                         orderId: order.orderId,
+                        studentName: order.studentName,
+                        class: order.class,
+                        roll_no: order.roll_no || null,
+                        email_id: order.email_id || null,
+                        phn_no: order.phn_no,
                         products: order.oproducts.map(prod => ({
                             product_id: prod.productId,
                             product_name: prod.productName,
