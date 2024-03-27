@@ -23,15 +23,15 @@ class OrdersService {
             }
 
             // Initialize an object to group orders by client name
-            const ordersByClient = {};
+            const ordersByStudent = {};
 
             // Group orders by client name
             executive.orders.forEach(order => {
-                const clientName = order.clientName;
-                if (!ordersByClient[clientName]) {
-                    ordersByClient[clientName] = [];
+                const studentName = order.studentName;
+                if (!ordersByStudent[studentName]) {
+                    ordersByStudent[studentName] = [];
                 }
-                ordersByClient[clientName].push({
+                ordersByStudent[studentName].push({
                     orderId: order.orderId,
                     products: order.oproducts.map(prod => ({
                         product_id: prod.productId,
@@ -48,10 +48,10 @@ class OrdersService {
             // console.log(ordersByClient)
 
             // Convert the grouped orders into an array of objects
-            const ordersArray = Object.keys(ordersByClient).map(clientName => {
+            const ordersArray = Object.keys(ordersByStudent).map(studentName => {
                 return {
-                    client_name: clientName,
-                    orders: ordersByClient[clientName]
+                    student_name: studentName,
+                    orders: ordersByStudent[studentName]
                 };
             });
 
@@ -114,7 +114,7 @@ class OrdersService {
                     }));
 
                 // Extract client name from the first order (assuming all orders have the same client)
-                // const clientName = executive.orders[0]?.clientName;
+                // const studentName = executive.orders[0]?.studentName;
 
                 return {
                     executive_id: executive.executiveId,

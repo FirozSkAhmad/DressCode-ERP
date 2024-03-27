@@ -36,13 +36,12 @@ class AdminService {
 
     async createExecutive(executiveDetails) {
         try {
-            // Check if storeName, emailId, or clientName already exists
+            // Check if storeName, emailId, already exists
             const existingStores = await Executive.findAll({
                 where: {
                     [Op.or]: [
                         { storeName: executiveDetails.executiveName },
                         { emailId: executiveDetails.emailId },
-                        { clientName: executiveDetails.clientName }
                     ]
                 }
             });
