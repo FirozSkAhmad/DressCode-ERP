@@ -36,11 +36,11 @@ class AdminService {
 
     async createExecutive(executiveDetails) {
         try {
-            // Check if storeName, emailId, already exists
+            // Check if executiveName, emailId, already exists
             const existingStores = await Executive.findAll({
                 where: {
                     [Op.or]: [
-                        { storeName: executiveDetails.executiveName },
+                        { executiveName: executiveDetails.executiveName },
                         { emailId: executiveDetails.emailId },
                     ]
                 }
@@ -227,10 +227,10 @@ class AdminService {
 
     async getAllExecutives() {
         try {
-            // Retrieve all stores from the database except those with storeName 'Shopify'
+            // Retrieve all stores from the database except those with executiveName 'Shopify'
             const executives = await Executive.findAll({
                 where: {
-                    // storeName: {
+                    // executiveName: {
                     //     [Op.ne]: 'Shopify' // Sequelize.Op.ne stands for "not equal"
                     // },
                     deleted: false
