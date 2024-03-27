@@ -57,7 +57,7 @@ const Order = global.DATA.CONNECTION.mysql.define('order', {
         type: Sequelize.STRING,
         allowNull: true,
     },
-    emailId: {
+    email_id: {
         type: Sequelize.STRING,
         allowNull: true,
     },

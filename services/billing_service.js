@@ -6,7 +6,7 @@ class BillingService {
     constructor() {
 
     }
-    async createNewBill(payload) {
+    async createNewBill(payload, executiveId) {
         try {
             let billingData = { ...payload };
 
@@ -15,7 +15,7 @@ class BillingService {
 
                 // Find executive
                 const executive = await Executive.findOne({
-                    where: { executiveName: billingData['executiveName'] },
+                    where: { executiveId: executiveId },
                     transaction: t
                 });
 
@@ -26,9 +26,10 @@ class BillingService {
 
                 // Create order
                 const order = await Order.create({
-                    executiveId: executive.executiveId,
+                    executiveId: executiveId,
                     studentName: billingData['studentName'],
                     class: billingData['class'],
+                    email_id: billingData['emailId'],
                     roll_no: billingData['rollNo'] || null,
                     phn_no: billingData['phnNo'],
                     orderedDate: billingData['orderedDate'],

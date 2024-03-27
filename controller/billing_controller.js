@@ -4,13 +4,16 @@ const Constants = require('../utils/Constants/response_messages')
 const multer = require('multer');
 const upload = multer();
 const nodemailer = require('nodemailer');
+const JwtHelper = require('../utils/Helpers/jwt_helper')
+const jwtHelperObj = new JwtHelper();
 
 const router = express.Router()
 
-router.post('/createNewBill', async (req, res, next) => {
+router.post('/createNewBill', jwtHelperObj.verifyAccessToken, async (req, res, next) => {
     try {
+        const executiveId = req.aud.split(":")[0]
         const billingServiceObj = new billingService();
-        const result = await billingServiceObj.createNewBill(req.body)
+        const result = await billingServiceObj.createNewBill(req.body, executiveId)
             .catch(err => {
                 console.log("error", err.message);
                 throw err;
