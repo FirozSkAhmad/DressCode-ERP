@@ -230,9 +230,9 @@ class AdminService {
             // Retrieve all stores from the database except those with executiveName 'Shopify'
             const executives = await Executive.findAll({
                 where: {
-                    // executiveName: {
-                    //     [Op.ne]: 'Shopify' // Sequelize.Op.ne stands for "not equal"
-                    // },
+                    executiveName: {
+                        [Op.ne]: 'Shopify' // Sequelize.Op.ne stands for "not equal"
+                    },
                     deleted: false
                 },
                 attributes: ['executiveId', 'executiveName', 'emailId', 'password', 'roleType'] // Specify the fields you want to retrieve
