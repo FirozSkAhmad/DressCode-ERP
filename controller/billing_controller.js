@@ -6,6 +6,7 @@ const upload = multer();
 const nodemailer = require('nodemailer');
 const JwtHelper = require('../utils/Helpers/jwt_helper')
 const jwtHelperObj = new JwtHelper();
+const { uploadPdfToS3 } = require('../AWS/aws')
 
 const router = express.Router()
 
@@ -29,6 +30,24 @@ router.post('/createNewBill', jwtHelperObj.verifyAccessToken, async (req, res, n
         next(err);
     }
 })
+
+router.post('/uploadToS3', upload.single('pdf'), async (req, res) => {
+    if (!req.file) {
+        return res.status(400).send('No file uploaded.');
+    }
+
+    const buffer = Buffer.from(req.file.buffer);
+
+    try {
+        const s3Url = await uploadPdfToS3(buffer, req.file.originalname, "invoices");
+        // console.log("S3 URL of the uploaded PDF:", s3Url);
+        // Respond with the S3 URL or another success message
+        res.json({ s3Url: s3Url });
+    } catch (error) {
+        console.error("Failed to upload PDF to S3", error);
+        res.status(500).json({ error: 'Error while uploading to S3' });
+    }
+});
 
 router.post('/sendEmail', upload.single('pdf'), async (req, res) => {
     const transporter = nodemailer.createTransport({
@@ -57,7 +76,7 @@ router.post('/sendEmail', upload.single('pdf'), async (req, res) => {
         res.json({ message: `Email sent: ${info.response}` });
     } catch (err) {
         console.error('Error sending email', err);
-        res.status(500).json({ error: 'Error sending email' });
+        res.status(500).json({ error: 'Error while sending email' });
     }
 })
 
