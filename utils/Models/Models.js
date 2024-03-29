@@ -62,6 +62,10 @@ const Order = global.DATA.CONNECTION.mysql.define('order', {
         allowNull: true,
     },
     phn_no: Sequelize.STRING,
+    mode_of_payment: {
+        type: Sequelize.DataTypes.ENUM('Cash', 'Gpay'),
+        allowNull: false
+    },
     executiveId: Sequelize.INTEGER,
     orderedDate: Sequelize.STRING,
     totalPrice: Sequelize.DECIMAL
