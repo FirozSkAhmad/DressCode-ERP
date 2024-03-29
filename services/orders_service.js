@@ -107,6 +107,7 @@ class OrdersService {
                         roll_no: order.roll_no || null,
                         email_id: order.email_id || null,
                         phn_no: order.phn_no,
+                        mode_of_payment: order.mode_of_payment,
                         products: order.oproducts.map(prod => ({
                             product_id: prod.productId,
                             product_name: prod.productName,
