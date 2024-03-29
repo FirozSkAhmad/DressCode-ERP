@@ -32,6 +32,7 @@ class BillingService {
                     email_id: billingData['emailId'],
                     roll_no: billingData['rollNo'] || null,
                     phn_no: billingData['phnNo'],
+                    mode_of_payment: billingData['modeOfPayment'],
                     orderedDate: billingData['orderedDate'],
                     totalPrice: billingData['totalPrice']
                 }, { transaction: t });
