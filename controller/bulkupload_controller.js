@@ -113,4 +113,36 @@ router.post("/bulkUploadProducts", jwtHelperObj.verifyAccessToken, upload.single
     }
 })
 
+router.patch("/bulkUpdateProducts", jwtHelperObj.verifyAccessToken, upload.single('file'), async (req, res, next) => {
+    try {
+        if (req.aud.split(":")[1] === "SUPER ADMIN") {
+            try {
+                if (!req.file || !isCsvFile(req.file)) {
+                    return res.status(400).send({ "status": 400, "message": "Invalid file format. Please upload a CSV file." });
+                }
+                const bulkUploadServiceObj = new BulkUploadService();
+                const result = await bulkUploadServiceObj.processProductsToUpdateCsvFile(req.file.buffer);
+                res.send(result)
+            }
+            catch (error) {
+                // Send the error message in the response
+                res.status(500).send({
+                    "status": 500,
+                    error: error
+                });
+            }
+        }
+        else {
+            res.send({
+                "status": 401,
+                "message": "only Super Admin has access to upload the products",
+            })
+        }
+    }
+    catch (err) {
+        console.log("error while uploading the products", err);
+        next(err);
+    }
+})
+
 module.exports = router;
